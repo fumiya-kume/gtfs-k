@@ -5,6 +5,7 @@ import java.io.ByteArrayInputStream
 import java.net.URL
 import java.util.zip.ZipInputStream
 
+@Suppress("unused", "RedundantVisibilityModifier")
 public fun gtfsReader(url: String): GtfsData {
     val data = ByteArrayInputStream(URL(url).readBytes())
     val files = unzipGtfsInMemory(data)
