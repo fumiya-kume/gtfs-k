@@ -19,3 +19,4 @@ include(":gtfs_k")
 include(":utils")
 
 rootProject.name = "gtfs-k"
+include("sample")
