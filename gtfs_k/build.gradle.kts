@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "io.github.fumiya-kume"
-version = "0.0.6"
+version = "0.0.7"
 
 publishing {
     publications {
