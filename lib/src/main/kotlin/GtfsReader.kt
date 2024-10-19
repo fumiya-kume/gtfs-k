@@ -1,4 +1,4 @@
-package systems.kuu.app
+package io.github.fumiya_kume.gtfs_k.lib
 
 import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
 import java.io.ByteArrayInputStream

@@ -15,9 +15,6 @@ plugins {
     id("org.gradle.toolchains.foojay-resolver-convention") version "0.8.0"
 }
 
-// Include subprojects "app" and "utils" in the build
-// If there are changes in only one of the projects, Gradle will only rebuild only the changed one
-// Learn more about structuring projects in Gradle - https://docs.gradle.org/8.7/userguide/multi_project_builds.html
 include(":lib")
 include(":utils")
 

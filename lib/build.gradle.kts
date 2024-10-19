@@ -1,19 +1,77 @@
 plugins {
-    // Apply the shared build logic from a convention plugin. The shared code is located in buildSrc/src/main/kotlin/kotlin-jvm.gradle.kts
     id("buildsrc.convention.kotlin-jvm")
 
-    // Apply the Application plugin to add support for building an executable JVM application
     application
+    `maven-publish`
+    alias(libs.plugins.sonatypeCentralUpload)
+}
+
+group = "io.github.fumiya-kume.gtfs_k"
+version = "0.0.3"
+
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            pom {
+                name.set("gtfs-k")
+                description.set("Parsing the GTFS for Kotlin")
+                url.set("https://github.com/fumiya-kume")
+                licenses {
+                    license {
+                        name.set("GPL License")
+                        url.set("https://github.com/fumiya-kume/gtfs-k/blob/master/LICENSE")
+                        distribution.set("repo")
+                    }
+                }
+                developers {
+                    developer {
+                        id.set("fumiya-kume")
+                        name.set("Kume Fumiya")
+                        email.set("fumiya.kume@hotmail.com")
+                    }
+                }
+                scm {
+                    url.set("https://github.com/fumiya-kume/gtfs-k")
+                }
+                from(components["java"])
+            }
+        }
+    }
+}
+tasks {
+    sonatypeCentralUpload {
+        dependsOn("jar", "sourcesJar", "javadocJar", "generatePomFileForMavenPublication")
+        username = System.getenv("sonatype_central_name")
+        password = System.getenv("sonatype_central_password")
+        archives = files(*jars())
+        pom = file("build/publications/maven/pom-default.xml")
+        doFirst { delete("build/sonatype-central-upload") }
+        dependsOn("build")
+        mustRunAfter("build")
+        signingKey = System.getenv("PGP_SECRET_KEY").replace('$', '\n')
+        signingKeyPassphrase = System.getenv("PGP_PASSWORD")
+    }
+}
+
+private fun jars(): Array<String> {
+    return arrayOf(
+        jarName(),
+        jarName("javadoc"),
+        jarName("sources")
+    )
+}
+
+private fun jarName(kind: String = ""): String {
+    val suffix = if (kind.isNotBlank()) "-$kind" else ""
+    return "build/libs/$name-%s$suffix.jar".format(version)
+}
+
+java {
+    withJavadocJar()
+    withSourcesJar()
 }
 
 dependencies {
-    // Project "app" depends on project "utils". (Project paths are separated with ":", so ":utils" refers to the top-level "utils" project.)
     implementation(project(":utils"))
     implementation(libs.kotlinCsvJvm)
-}
-
-application {
-    // Define the Fully Qualified Name for the application main class.
-    // (Note that Kotlin compiles `App.kt` to a class with FQN `com.example.app.AppKt`.)
-    mainClass = "systems.kuu.app.AppKt"
 }
