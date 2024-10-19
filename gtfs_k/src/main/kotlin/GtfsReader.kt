@@ -36,7 +36,7 @@ public fun gtfsReader(url: String): GtfsData {
     )
 }
 
-fun unzipGtfsInMemory(inputStream: ByteArrayInputStream): Map<String, String> {
+private fun unzipGtfsInMemory(inputStream: ByteArrayInputStream): Map<String, String> {
     val zipFile = ZipInputStream(inputStream)
     val files = mutableMapOf<String, String>()
     var entry = zipFile.nextEntry
