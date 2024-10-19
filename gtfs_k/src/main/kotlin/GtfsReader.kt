@@ -48,6 +48,9 @@ The data can be
 @JvmInline
 value class AgencyId(val id: String)
 
+@JvmInline
+value class RouteId(val id: String)
+
 data class GtfsData(
     val agency: List<Agency> = emptyList(),
     val agencyJapan: List<AgencyJapan> = emptyList(),
@@ -94,106 +97,106 @@ data class AgencyJapan(
 )
 
 data class Routes(
-    val routeId: String?,
+    val routeId: RouteId?,
     val agencyId: AgencyId?,
     val routeShortName: String?,
-    val route_long_name: String?,
-    val route_desc: String?,
-    val route_type: Int,
-    val route_url: String?,
-    val route_color: String?,
-    val route_text_color: String?
+    val routeLongName: String?,
+    val routeDesc: String?,
+    val routeType: String?,
+    val routeUrl: String?,
+    val routeColor: String?,
+    val routeTextColor: String?
 )
 
 data class Trips(
-    val route_id: Int?,
-    val service_id: Int?,
-    val trip_id: Int,
-    val trip_headsign: String?,
-    val trip_short_name: String?,
-    val direction_id: Int?,
-    val block_id: Int?,
-    val shape_id: Int?,
-    val wheelchair_accessible: Int?,
-    val bikes_allowed: Int?
+    val routeId: RouteId?,
+    val serviceId: String?,
+    val tripId: String?,
+    val tripHeadsign: String?,
+    val tripShortName: String?,
+    val directionId: String?,
+    val blockId: String?,
+    val shapeId: String?,
+    val wheelchairAccessible: String?,
+    val bikesAllowed: String?
 )
 
 data class StopTimes(
-    val trip_id: Int?,
-    val arrival_time: String,
-    val departure_time: String,
-    val stop_id: Int?,
-    val stop_sequence: Int,
-    val stop_headsign: String?,
-    val pickup_type: Int?,
-    val drop_off_type: Int?,
-    val shape_dist_traveled: Float?,
-    val timepoint: Int?
+    val tripId: String?,
+    val arrivalTime: String?,
+    val departureTime: String?,
+    val stopId: String?,
+    val stopSequence: String?,
+    val stopHeadsign: String?,
+    val pickupType: String?,
+    val dropOffType: String?,
+    val shapeDistTraveled: String?,
+    val timeline: String?
 )
 
 data class Stops(
-    val stop_id: Int,
-    val stop_code: String?,
-    val stop_name: String,
-    val stop_desc: String?,
-    val stop_lat: Double,
-    val stop_lon: Double,
-    val zone_id: Int?,
-    val stop_url: String?,
-    val location_type: Int?,
-    val parent_station: String?,
-    val stop_timezone: String?,
-    val wheelchair_boarding: Int?,
-    val platform_code: String?
+    val stopId: String?,
+    val stopCode: String?,
+    val stopName: String,
+    val stopDesc: String?,
+    val stopLat: String?,
+    val stopLon: String?,
+    val zoneId: String?,
+    val stopUrl: String?,
+    val locationType: String?,
+    val parentStation: String?,
+    val stopTimezone: String?,
+    val wheelchairBoarding: String?,
+    val platformCode: String?
 )
 
 data class Calendar(
-    val service_id: Int,
-    val monday: Int,
-    val tuesday: Int,
-    val wednesday: Int,
-    val thursday: Int,
-    val friday: Int,
-    val saturday: Int,
-    val sunday: Int,
-    val start_date: String, // Consider using a Date type
-    val end_date: String // Consider using a Date type
+    val serviceId: String?,
+    val monday: String?,
+    val tuesday: String?,
+    val wednesday: String?,
+    val thursday: String?,
+    val friday: String?,
+    val saturday: String?,
+    val sunday: String?,
+    val startDate: String?, // Consider using a Date type
+    val endDate: String? // Consider using a Date type
 )
 
 data class CalendarDates(
-    val service_id: Int?,
-    val date: String, // Consider using a Date type
-    val exception_type: Int
+    val serviceId: String?,
+    val date: String?, // Consider using a Date type
+    val exceptionType: String?
 )
 
 data class Frequencies(
-    val trip_id: Int?,
-    val start_time: String, // Consider using a Time type
-    val end_time: String, // Consider using a Time type
-    val headway_secs: Int,
-    val exact_times: Int?
+    val tripId: String?,
+    val startTime: String?, // Consider using a Time type
+    val endTime: String?, // Consider using a Time type
+    val headwaySecs: String?,
+    val exactTimes: String?
 )
 
 data class Transfers(
-    val from_stop_id: Int?,
-    val to_stop_id: Int?,
-    val transfer_type: Int,
-    val min_transfer_time: Int?
+    val fromStopId: String?,
+    val toStopId: String?,
+    val transferType: String?,
+    val minTransferTime: String?
 )
 
 data class FeedInfo(
-    val feed_publisher_name: String,
-    val feed_publisher_url: String,
-    val feed_lang: String,
-    val feed_start_date: String, // Consider using a Date type
-    val feed_end_date: String, // Consider using a Date type
-    val feed_version: String?
+    val feedPublisherName: String?,
+    val feedPublisherUrl: String?,
+    val feedLang: String?,
+    val feedStartDate: String?, // Consider using a Date type
+    val feedEndDate: String?, // Consider using a Date type
+    val feedVersion: String?
 )
 
 data class Shapes(
-    val shape_id: Int,
-    val shape_pt_lat: Double,
-    val shape_pt_lon: Double,
-    val shape_pt_sequence: Int,
-    val shape_dist_traveled: Float?
+    val shapeId: String,
+    val shapePtLat: String?,
+    val shapePtLon: String?,
+    val shapePtSequence: String,
+    val shapeDistTraveled: String??
 )
