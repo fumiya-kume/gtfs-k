@@ -33,7 +33,7 @@ private fun Map<String, String>.parseFileList(): GtfsData {
     )
 }
 
-private fun String.parseAgency(): List<Agency>{
+private fun String.parseAgency(): List<Agency> {
     return csvReader().readAllWithHeader(this).map { row ->
         Agency(
             agencyId = row["agency_id"]?.let { AgencyId(it) },
@@ -62,17 +62,48 @@ private fun String.parseAgencyJapan(): List<AgencyJapan> {
 }
 
 /**
-The data can be
-```
-①8000020130001
-②8000020130001_1
-```
+ * The data can be
+ * ```
+ * ①8000020130001
+ * ②8000020130001_1
+ * ```
  */
 @JvmInline
 value class AgencyId(val id: String)
 
+/**
+ * The data can be
+ * ```
+ * 1001
+ * ```
+ */
 @JvmInline
 value class RouteId(val id: String)
+
+/**
+ * The data can be
+ * ```
+ * S
+ * ```
+ */
+@JvmInline
+value class OfficeId(val id: String)
+
+@JvmInline
+value class ShapeId(val id:String)
+
+@JvmInline
+value class ServiceId(val id:String)
+
+@JvmInline
+value class TripId(val id:String)
+
+@JvmInline
+value class StopId(val id:String)
+
+@JvmInline
+value class FareId(val id:String)
+
 
 data class GtfsData(
     val agency: List<Agency> = emptyList(),
