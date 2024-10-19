@@ -18,7 +18,7 @@ plugins {
 // Include subprojects "app" and "utils" in the build
 // If there are changes in only one of the projects, Gradle will only rebuild only the changed one
 // Learn more about structuring projects in Gradle - https://docs.gradle.org/8.7/userguide/multi_project_builds.html
-include(":app")
+include(":lib")
 include(":utils")
 
 rootProject.name = "gtfs-k"
