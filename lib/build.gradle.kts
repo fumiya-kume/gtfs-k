@@ -6,8 +6,8 @@ plugins {
     alias(libs.plugins.sonatypeCentralUpload)
 }
 
-group = "io.github.fumiya-kume.gtfs_k"
-version = "0.0.3"
+group = "io.github.fumiya-kume"
+version = "0.0.4"
 
 publishing {
     publications {
