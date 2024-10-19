@@ -4,49 +4,61 @@ import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
 import java.io.ByteArrayInputStream
 import java.net.URL
 import java.util.zip.ZipInputStream
-import javax.sql.RowSetReader
 
 @Suppress("unused", "RedundantVisibilityModifier")
 public fun gtfsReader(url: String): GtfsData {
-    val data = ByteArrayInputStream(URL(url).readBytes())
-    val files = unzipGtfsInMemory(data)
+    return downloadGtfsFile(url)
+        .unzipFile()
+        .parseFileList()
+}
+
+private fun downloadGtfsFile(url: String): ZipInputStream = ZipInputStream(ByteArrayInputStream(URL(url).readBytes()))
+
+private fun ZipInputStream.unzipFile(): Map<String, String> {
+    val files = mutableMapOf<String, String>()
+    var entry = nextEntry
+    while (entry != null) {
+        val content = readAllBytes().decodeToString()
+        files[entry.name] = content
+        entry = nextEntry
+    }
+    close()
+    return files
+}
+
+private fun Map<String, String>.parseFileList(): GtfsData {
     return GtfsData(
-        agency = csvReader().readAllWithHeader(files["agency.txt"]!!).map { row ->
-            Agency(
-                agencyId = row["agency_id"]?.let { AgencyId(it) },
-                agencyName = row["agency_name"],
-                agencyUrl = row["agency_url"],
-                agencyTimezone = row["agency_timezone"],
-                agencyLang = row["agency_lang"],
-                agencyPhone = row["agency_phone"],
-                agencyFareUrl = row["agency_fare_url"],
-                agencyEmail = row["agency_email"]
-            )
-        },
-        agencyJapan = csvReader().readAllWithHeader(files["agency_jp.txt"]!!).map { row ->
-            AgencyJapan(
-                agencyId = (row["agency_id"])?.let { AgencyId(it) },
-                agencyOfficialName = row["agency_official_name"],
-                agencyZipCode = row["agency_zip_code"],
-                agencyAddress = row["agency_address"],
-                agencyPresidentPos = row["agency_president_pos"],
-                agencyPresidentName = row["agency_president_name"],
-            )
-        }
+        agency = get("agency.txt")?.parseAgency() ?: emptyList(),
+        agencyJapan = get("agency_jp.txt")?.parseAgencyJapan() ?: emptyList()
     )
 }
 
-private fun unzipGtfsInMemory(inputStream: ByteArrayInputStream): Map<String, String> {
-    val zipFile = ZipInputStream(inputStream)
-    val files = mutableMapOf<String, String>()
-    var entry = zipFile.nextEntry
-    while (entry != null) {
-        val content = zipFile.readAllBytes().decodeToString()
-        files[entry.name] = content
-        entry = zipFile.nextEntry
+private fun String.parseAgency(): List<Agency>{
+    return csvReader().readAllWithHeader(this).map { row ->
+        Agency(
+            agencyId = row["agency_id"]?.let { AgencyId(it) },
+            agencyName = row["agency_name"],
+            agencyUrl = row["agency_url"],
+            agencyTimezone = row["agency_timezone"],
+            agencyLang = row["agency_lang"],
+            agencyPhone = row["agency_phone"],
+            agencyFareUrl = row["agency_fare_url"],
+            agencyEmail = row["agency_email"]
+        )
     }
-    zipFile.close()
-    return files
+}
+
+private fun String.parseAgencyJapan(): List<AgencyJapan> {
+    return csvReader().readAllWithHeader(this).map { row ->
+        AgencyJapan(
+            agencyId = (row["agency_id"])?.let { AgencyId(it) },
+            agencyOfficialName = row["agency_official_name"],
+            agencyZipCode = row["agency_zip_code"],
+            agencyAddress = row["agency_address"],
+            agencyPresidentPos = row["agency_president_pos"],
+            agencyPresidentName = row["agency_president_name"],
+        )
+    }
 }
 
 /**
