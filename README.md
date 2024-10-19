@@ -6,3 +6,8 @@ The library that parsing the GTFS format files.
 - Made with pure Kotlin
 - Easier to use
 - Modern codebase
+
+# Copy rights
+
+At the test data of GTFS, We'are using following content
+- Toyotetsu - https://bus-viewer.jp/toyotetsu/view/opendataToyotetsu.html
