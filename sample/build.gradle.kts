@@ -10,6 +10,7 @@ repositories {
 }
 
 dependencies {
+    implementation("io.github.fumiya-kume:gtfs_k:0.0.5")
     testImplementation(kotlin("test"))
 }
 
