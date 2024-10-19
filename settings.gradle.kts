@@ -16,7 +16,7 @@ plugins {
 }
 
 include(":gtfs_k")
-include(":utils")
+include("sample")
 
 rootProject.name = "gtfs-k"
-include("sample")
+

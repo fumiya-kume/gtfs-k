@@ -72,6 +72,5 @@ java {
 }
 
 dependencies {
-    implementation(project(":utils"))
     implementation(libs.kotlinCsvJvm)
 }
