@@ -4,6 +4,7 @@ import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
 import java.io.ByteArrayInputStream
 import java.net.URL
 import java.util.zip.ZipInputStream
+import javax.sql.RowSetReader
 
 @Suppress("unused", "RedundantVisibilityModifier")
 public fun gtfsReader(url: String): GtfsData {
@@ -20,6 +21,16 @@ public fun gtfsReader(url: String): GtfsData {
                 agencyPhone = row["agency_phone"],
                 agencyFareUrl = row["agency_fare_url"],
                 agencyEmail = row["agency_email"]
+            )
+        },
+        agencyJapan = csvReader().readAllWithHeader(files["agency_jp.txt"]!!).map { row ->
+            AgencyJapan(
+                agencyId = (row["agency_id"])?.let { AgencyId(it) },
+                agencyOfficialName = row["agency_official_name"],
+                agencyZipCode = row["agency_zip_code"],
+                agencyAddress = row["agency_address"],
+                agencyPresidentPos = row["agency_president_pos"],
+                agencyPresidentName = row["agency_president_name"],
             )
         }
     )
@@ -73,7 +84,7 @@ data class Agency(
  * 事業者追加情報
  */
 data class AgencyJapan(
-    val agencyId: AgencyId,
+    val agencyId: AgencyId?,
     /**
      * 事業者正式名称
      */
