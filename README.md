@@ -1,4 +1,4 @@
-# gtfs-k [![Maven Central Version](https://img.shields.io/maven-central/v/io.github.fumiya-kume/gtfs_k)](https://central.sonatype.com/artifact/io.github.fumiya-kume/gtfs_k)
+# gtfs-k [![Maven Central Version](https://img.shields.io/maven-central/v/io.github.fumiya-kume/gtfs_k)](https://central.sonatype.com/artifact/io.github.fumiya-kume/gtfs_k) [![Java CI with Gradle](https://github.com/fumiya-kume/gtfs-k/actions/workflows/gradle.yml/badge.svg)](https://github.com/fumiya-kume/gtfs-k/actions/workflows/gradle.yml)
 
 The library that parsing the GTFS format files.
 
