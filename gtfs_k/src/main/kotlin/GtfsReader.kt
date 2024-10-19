@@ -1,5 +1,6 @@
 package io.github.fumiya_kume.gtfs_k.lib
 
+import com.github.doyaaaaaken.kotlincsv.client.CsvReader
 import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
 import java.io.ByteArrayInputStream
 import java.net.URL
@@ -28,14 +29,15 @@ private fun ZipInputStream.unzipFile(): Map<String, String> {
 
 private fun Map<String, String>.parseFileList(): GtfsData {
     return GtfsData(
-        agency = get("agency.txt")?.parseAgency() ?: emptyList(),
-        agencyJapan = get("agency_jp.txt")?.parseAgencyJapan() ?: emptyList(),
-        routed = get("routes.txt")?.parseRoutes() ?: emptyList(),
+        agency = parseAgency(),
+        agencyJapan = parseAgencyJapan(),
+        routed = parseRoutes(),
     )
 }
 
-private fun String.parseAgency(): List<Agency> {
-    return csvReader().readAllWithHeader(this).map { row ->
+private fun Map<String, String>.parseAgency(): List<Agency> {
+    val data = get("agency.txt") ?: return emptyList()
+    return csvReader().readAllWithHeader(data).map { row ->
         Agency(
             agencyId = row["agency_id"]?.let { AgencyId(it) },
             agencyName = row["agency_name"],
@@ -49,8 +51,9 @@ private fun String.parseAgency(): List<Agency> {
     }
 }
 
-private fun String.parseAgencyJapan(): List<AgencyJapan> {
-    return csvReader().readAllWithHeader(this).map { row ->
+private fun Map<String,String>.parseAgencyJapan(): List<AgencyJapan> {
+    val data = get("agency_jp.txt") ?: return emptyList()
+    return csvReader().readAllWithHeader(data).map { row ->
         AgencyJapan(
             agencyId = row["agency_id"]?.let { AgencyId(it) },
             agencyOfficialName = row["agency_official_name"],
@@ -62,8 +65,9 @@ private fun String.parseAgencyJapan(): List<AgencyJapan> {
     }
 }
 
-private fun String.parseRoutes():List<Routes> {
-    return csvReader().readAllWithHeader(this).map { row ->
+private fun Map<String, String>.parseRoutes():List<Routes> {
+    val data = get("routes.txt") ?: return emptyList()
+    return csvReader().readAllWithHeader(data).map { row ->
         Routes(
             routeId = row["route_id"]?.let { RouteId(it) },
             agencyId = row["agency_id"]?.let { AgencyId(it) },
