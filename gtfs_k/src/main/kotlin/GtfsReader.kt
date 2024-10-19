@@ -51,7 +51,7 @@ private fun String.parseAgency(): List<Agency> {
 private fun String.parseAgencyJapan(): List<AgencyJapan> {
     return csvReader().readAllWithHeader(this).map { row ->
         AgencyJapan(
-            agencyId = (row["agency_id"])?.let { AgencyId(it) },
+            agencyId = row["agency_id"]?.let { AgencyId(it) },
             agencyOfficialName = row["agency_official_name"],
             agencyZipCode = row["agency_zip_code"],
             agencyAddress = row["agency_address"],
