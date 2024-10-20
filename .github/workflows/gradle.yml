@@ -10,7 +10,7 @@ jobs:
   build:
     strategy:
       matrix:
-        module: [gtfs_k, sample, android_sample]
+        module: [gtfs_k, sample, sample_android]
     runs-on: ubuntu-latest
     permissions:
       contents: read
