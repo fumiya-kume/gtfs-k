@@ -6,7 +6,6 @@
   "packageRules": [
     {
       "matchPackagePatterns": ["*"],
-      "groupName": "all dependencies",
       "automerge": true
     }
   ],
