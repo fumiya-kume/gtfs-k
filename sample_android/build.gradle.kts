@@ -48,7 +48,7 @@ dependencies {
     implementation(libs.uiToolingPreview)
     implementation(libs.activityCompose)
     implementation(libs.material3)
-    implementation("io.github.fumiya-kume:gtfs_k:0.0.8")
+    implementation("io.github.fumiya-kume:gtfs_k:0.0.9")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.runner)
