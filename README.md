@@ -15,7 +15,7 @@ The library that parsing the GTFS format files.
 ## Kotlin
 
 ```kt
-implementation("io.github.fumiya-kume:gtfs_k:0.0.5")
+implementation("io.github.fumiya-kume:gtfs_k:0.0.9")
 ```
 
 ## Apache Maven
@@ -24,7 +24,7 @@ implementation("io.github.fumiya-kume:gtfs_k:0.0.5")
 <dependency>
     <groupId>io.github.fumiya-kume</groupId>
     <artifactId>gtfs_k</artifactId>
-    <version>0.0.5</version>
+    <version>0.0.9</version>
 </dependency>
 ```
 
