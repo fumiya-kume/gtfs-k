@@ -3,4 +3,15 @@
   "extends": [
     "config:recommended"
   ]
+  "packageRules": [
+    {
+      "matchPackagePatterns": ["*"],
+      "groupName": "all dependencies",
+      "automerge": true
+    }
+  ],
+  "gradle": {
+    "enabled": true,
+    "fileMatch": ["gradle/libs.versions.toml"]
+  }
 }
