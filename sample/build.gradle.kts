@@ -5,10 +5,6 @@ plugins {
 group = "systems.kuu.gtfs-k"
 version = "1.0.0"
 
-repositories {
-    mavenCentral()
-}
-
 dependencies {
     implementation("io.github.fumiya-kume:gtfs_k:0.0.7")
     testImplementation(kotlin("test"))
