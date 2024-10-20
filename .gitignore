@@ -43,3 +43,7 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+/.idea/deploymentTargetSelector.xml
+/.idea/caches/deviceStreaming.xml
+/.idea/migrations.xml
+/.idea/kotlinc.xml
