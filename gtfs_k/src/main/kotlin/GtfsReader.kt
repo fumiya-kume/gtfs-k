@@ -4,10 +4,13 @@ import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
 import java.io.ByteArrayInputStream
 import java.net.URL
 import java.util.zip.ZipInputStream
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import sun.rmi.server.Dispatcher
 
 @Suppress("unused", "RedundantVisibilityModifier")
-public fun gtfsReader(url: String): GtfsData {
-    return downloadGtfsFile(url)
+public suspend fun gtfsReader(url: String): GtfsData = withContext(Dispatchers.IO) {
+    downloadGtfsFile(url)
         .unzipFile()
         .parseFileList()
 }

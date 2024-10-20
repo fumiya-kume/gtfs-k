@@ -72,5 +72,6 @@ java {
 }
 
 dependencies {
+    implementation(libs.kotlinxCoroutines)
     implementation(libs.kotlinCsvJvm)
 }
