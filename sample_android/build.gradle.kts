@@ -2,7 +2,7 @@ plugins {
 //    alias(libs.plugins.android.application)
     id("org.jetbrains.kotlin.android")
     id("com.android.application")
-//    alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kotlin.compose)
 }
 
 android {
@@ -35,11 +35,21 @@ android {
     kotlinOptions {
         jvmTarget = "11"
     }
+    buildFeatures {
+        compose = true
+    }
 }
 
 dependencies {
+    implementation(libs.appcompat)
+    implementation(platform(libs.composeBom))
+    implementation(libs.ui)
+    implementation(libs.material)
+    implementation(libs.uiToolingPreview)
+    implementation(libs.activityCompose)
+    implementation(libs.material3)
+    implementation("io.github.fumiya-kume:gtfs_k:0.0.8")
 
-    implementation(libs.appcompatV7)
     testImplementation(libs.junit)
     androidTestImplementation(libs.runner)
     androidTestImplementation(libs.espressoCore)

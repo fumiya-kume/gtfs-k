@@ -4,11 +4,14 @@
 
 [versions]
 agp = "8.5.0"
+appcompat = "1.7.0"
+composeBom = "2024.10.00"
 kotlin = "2.0.21"
 kotlinxDatetime = "0.6.1"
 kotlinxSerializationJSON = "1.7.3"
 kotlinxCoroutines = "1.8.1"
 kotlinCsv = "1.10.0"
+material3 = "1.3.0"
 sonatyopeCentralUpload = "1.0.3"
 junit = "4.13.2"
 runner = "1.0.2"
@@ -16,15 +19,22 @@ espressoCore = "3.0.2"
 appcompatV7 = "28.0.0"
 
 [libraries]
+activityCompose = { module = "androidx.activity:activity-compose" }
+appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
+composeBom = { module = "androidx.compose:compose-bom", version.ref = "composeBom" }
 kotlinGradlePlugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 kotlinxDatetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinxDatetime" }
 kotlinxSerialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJSON" }
 kotlinxCoroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutines" }
 kotlinCsvJvm = { module = "com.jsoizo:kotlin-csv-jvm", version.ref = "kotlinCsv" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
+material = { module = "androidx.compose.material:material" }
+material3 = { module = "androidx.compose.material3:material3", version.ref = "material3" }
 runner = { group = "com.android.support.test", name = "runner", version.ref = "runner" }
 espressoCore = { group = "com.android.support.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 appcompatV7 = { group = "com.android.support", name = "appcompat-v7", version.ref = "appcompatV7" }
+ui = { module = "androidx.compose.ui:ui" }
+uiToolingPreview = { module = "androidx.compose.ui:ui-tooling-preview" }
 
 # Libraries can be bundled together for easier import
 [bundles]
