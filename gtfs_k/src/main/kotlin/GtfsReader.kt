@@ -37,8 +37,9 @@ private fun Map<String, String>.parseFileList(): GtfsData {
         officeJapan = parseOfficeJapan(),
         frequencies = parseFrequencies(),
         calenders = parseCalendars(),
+        calendarDates = parseCalendarDates(),
         shapes = parseShapes(),
-        stopTimes = parseStopTimes()
+        stopTimes = parseStopTimes(),
     )
 }
 
@@ -212,6 +213,17 @@ private fun Map<String, String>.parseStopTimes(): List<StopTime> {
     }
 }
 
+private fun Map<String, String>.parseCalendarDates(): List<CalendarDate> {
+    val data = get("calendar_dates.txt") ?: return emptyList()
+    return csvReader().readAllWithHeader(data).map {
+        CalendarDate(
+            serviceId = it["service_id"]?.let { ServiceId(it) },
+            date = it["date"],
+            exceptionType = it["exception_type"],
+        )
+    }
+}
+
 /**
  * The data can be
  * ```
@@ -266,6 +278,7 @@ data class GtfsData(
     val officeJapan: List<OfficeJapan> = emptyList(),
     val frequencies: List<Frequency> = emptyList(),
     val calenders: List<Calendar> = emptyList(),
+    val calendarDates: List<CalendarDate> = emptyList(),
     val shapes: List<Shape> = emptyList(),
     val stopTimes: List<StopTime> = emptyList(),
 )
@@ -416,6 +429,12 @@ data class StopTime(
     val timePoint: String?
 )
 
+data class CalendarDate(
+    val serviceId: ServiceId?,
+    val date: String?, // Consider using a Date type
+    val exceptionType: String?
+)
+
 // -- until here, checked --
 
 data class Stops(
@@ -432,12 +451,6 @@ data class Stops(
     val stopTimezone: String?,
     val wheelchairBoarding: String?,
     val platformCode: String?
-)
-
-data class CalendarDates(
-    val serviceId: String?,
-    val date: String?, // Consider using a Date type
-    val exceptionType: String?
 )
 
 data class Transfers(
