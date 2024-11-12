@@ -74,4 +74,9 @@ java {
 dependencies {
     implementation(libs.kotlinxCoroutines)
     implementation(libs.kotlinCsvJvm)
+    testImplementation(kotlin("test"))
+}
+
+tasks.test {
+    useJUnitPlatform()
 }

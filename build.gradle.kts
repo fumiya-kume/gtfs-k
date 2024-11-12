@@ -3,3 +3,11 @@ tasks.register("clean") {
         println("clean task")
     }
 }
+
+dependencies {
+    testImplementation(kotlin("test"))
+}
+
+tasks.test {
+    useJUnitPlatform()
+}
