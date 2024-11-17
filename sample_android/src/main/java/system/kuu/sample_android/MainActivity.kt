@@ -3,6 +3,8 @@ package system.kuu.sample_android
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -63,9 +65,7 @@ class MainActivity : ComponentActivity() {
                         Text("Routed", style = MaterialTheme.typography.headlineMedium)
                     }
                     items(data?.routes?.distinctBy { it.routeShortName } ?: emptyList()) {
-                        OutlinedCard(modifier = Modifier.padding(16.dp)) {
-                            Text(it.routeShortName ?: "")
-                        }
+                        Text(it.routeShortName ?: "")
                     }
 
                     item {
@@ -85,14 +85,41 @@ class MainActivity : ComponentActivity() {
                     item {
                         Text("Calendar", style = MaterialTheme.typography.headlineMedium)
                     }
-                    items(data?.calenders ?: emptyList()) {
-                        OutlinedCard(
-                            modifier = Modifier.padding(
-                                horizontal = 16.dp,
-                                vertical = 2.dp
-                            )
-                        ) {
-                            Text(it.monday ?: "")
+
+                    data?.calenders.let { calendarList ->
+                        item {
+                            calendarList?.forEach {
+                                Row {
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text("Mon")
+                                        Text(it.monday.toString())
+                                    }
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text("Tues")
+                                        Text(it.tuesday.toString())
+                                    }
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text("Wed")
+                                        Text(it.wednesday.toString())
+                                    }
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text("Thurs")
+                                        Text(it.thursday.toString())
+                                    }
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text("Fri")
+                                        Text(it.friday.toString())
+                                    }
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text("Satur")
+                                        Text(it.saturday.toString())
+                                    }
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text("Sun")
+                                        Text(it.sunday.toString())
+                                    }
+                                }
+                            }
                         }
                     }
                 }
