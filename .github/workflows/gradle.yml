@@ -26,7 +26,11 @@ jobs:
 
     - name: Build with Gradle Wrapper
       run: ./gradlew :${{ matrix.module }}:build
-
+  lint:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
     - name: Run linter
       run: ./gradlew check
 
