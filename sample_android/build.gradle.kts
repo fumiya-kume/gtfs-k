@@ -55,7 +55,3 @@ dependencies {
     androidTestImplementation(libs.espressoCore)
     testImplementation(kotlin("test"))
 }
-
-tasks.test {
-    useJUnitPlatform()
-}
