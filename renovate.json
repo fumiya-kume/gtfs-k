@@ -5,12 +5,16 @@
   ],
   "packageRules": [
     {
-      "matchPackagePatterns": ["*"],
-      "automerge": true
+      "automerge": true,
+      "matchPackageNames": [
+        "*"
+      ]
     }
   ],
   "gradle": {
     "enabled": true,
-    "fileMatch": ["gradle/libs.versions.toml"]
+    "fileMatch": [
+      "gradle/libs.versions.toml"
+    ]
   }
 }
