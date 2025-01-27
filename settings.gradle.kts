@@ -27,7 +27,7 @@ dependencyResolutionManagement {
 plugins {
     // Use the Foojay Toolchains Plugin to automatically download JDKs required by subprojects
     id("org.gradle.toolchains.foojay-resolver-convention") version "0.9.0"
-    kotlin("android") version "2.1.0" apply false
+    kotlin("android") version "2.1.10" apply false
     id("com.android.application") version "8.8.0" apply false
 }
 
