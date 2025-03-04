@@ -3,7 +3,7 @@
 # https://docs.gradle.org/current/userguide/platforms.html#sub::toml-dependencies-format
 
 [versions]
-agp = "8.8.2"
+agp = "8.9.0"
 appcompat = "1.7.0"
 composeBom = "2025.02.00"
 kotlin = "2.1.10"
