@@ -28,7 +28,7 @@ plugins {
     // Use the Foojay Toolchains Plugin to automatically download JDKs required by subprojects
     id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
     kotlin("android") version "2.2.10" apply false
-    id("com.android.application") version "8.12.0" apply false
+    id("com.android.application") version "8.12.1" apply false
 }
 
 include(":gtfs_k")
