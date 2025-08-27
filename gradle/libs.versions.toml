@@ -5,7 +5,7 @@
 [versions]
 agp = "8.12.1"
 appcompat = "1.7.1"
-composeBom = "2025.08.00"
+composeBom = "2025.08.01"
 kotlin = "2.2.10"
 kotlinxDatetime = "0.7.1-0.6.x-compat"
 kotlinxSerializationJSON = "1.9.0"
