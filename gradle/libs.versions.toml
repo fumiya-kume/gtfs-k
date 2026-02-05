@@ -6,7 +6,7 @@
 agp = "9.0.0"
 appcompat = "1.7.1"
 composeBom = "2026.01.01"
-kotlin = "2.3.0"
+kotlin = "2.3.10"
 kotlinxDatetime = "0.7.1-0.6.x-compat"
 kotlinxSerializationJSON = "1.10.0"
 kotlinxCoroutines = "1.10.2"
