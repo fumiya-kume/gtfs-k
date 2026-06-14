@@ -1,57 +1,103 @@
 package io.github.fumiya_kume.gtfs_k.lib
 
 import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
-import java.io.ByteArrayInputStream
+import java.io.InputStream
 import java.net.URL
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import java.util.zip.ZipInputStream
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import sun.rmi.server.Dispatcher
+
+private val isoDateFormatter = DateTimeFormatter.BASIC_ISO_DATE
+
+private fun String?.toLocalDateOrNull(): LocalDate? {
+    if (this.isNullOrBlank()) return null
+    return try {
+        LocalDate.parse(this, isoDateFormatter)
+    } catch (e: Exception) {
+        null
+    }
+}
+
+private fun String?.toBooleanFromGtfs(): Boolean? {
+    return when(this) {
+        "1" -> true
+        "0" -> false
+        else -> null
+    }
+}
+
+private class NonClosingInputStream(private val delegate: InputStream) : InputStream() {
+    override fun read(): Int = delegate.read()
+    override fun read(b: ByteArray): Int = delegate.read(b)
+    override fun read(b: ByteArray, off: Int, len: Int): Int = delegate.read(b, off, len)
+    override fun close() { /* do nothing */ }
+    override fun available(): Int = delegate.available()
+}
 
 @Suppress("unused", "RedundantVisibilityModifier")
 public suspend fun gtfsReader(url: String): GtfsData = withContext(Dispatchers.IO) {
-    downloadGtfsFile(url)
-        .unzipFile()
-        .parseFileList()
-}
+    var agency: List<Agency> = emptyList()
+    var agencyJapan: List<AgencyJapan> = emptyList()
+    var routes: List<Route> = emptyList()
+    var routesJapan: List<RoutesJapan> = emptyList()
+    var feedInfo: List<FeedInfo> = emptyList()
+    var trips: List<Trip> = emptyList()
+    var officeJapan: List<OfficeJapan> = emptyList()
+    var frequencies: List<Frequency> = emptyList()
+    var calenders: List<Calendar> = emptyList()
+    var calendarDates: List<CalendarDate> = emptyList()
+    var shapes: List<Shape> = emptyList()
+    var stopTimes: List<StopTime> = emptyList()
+    var stops: List<Stop> = emptyList()
+    var transfers: List<Transfer> = emptyList()
+    var fareAttributes: List<FareAttribute> = emptyList()
 
-private fun downloadGtfsFile(url: String): ZipInputStream = ZipInputStream(ByteArrayInputStream(URL(url).readBytes()))
-
-private fun ZipInputStream.unzipFile(): Map<String, String> {
-    val files = mutableMapOf<String, String>()
-    var entry = nextEntry
-    while (entry != null) {
-        val content = readAllBytes().decodeToString()
-        files[entry.name] = content
-        entry = nextEntry
+    ZipInputStream(URL(url).openStream()).use { zis ->
+        generateSequence { zis.nextEntry }.forEach { entry ->
+            val nonClosingZis = NonClosingInputStream(zis)
+            when (entry.name) {
+                "agency.txt" -> agency = parseAgency(nonClosingZis)
+                "agency_jp.txt" -> agencyJapan = parseAgencyJapan(nonClosingZis)
+                "routes.txt" -> routes = parseRoutes(nonClosingZis)
+                "routes_jp.txt" -> routesJapan = parseRoutesJapan(nonClosingZis)
+                "feed_info.txt" -> feedInfo = parseFeedInfo(nonClosingZis)
+                "trips.txt" -> trips = parseTrips(nonClosingZis)
+                "office_jp.txt" -> officeJapan = parseOfficeJapan(nonClosingZis)
+                "frequencies.txt" -> frequencies = parseFrequencies(nonClosingZis)
+                "calendar.txt" -> calenders = parseCalendars(nonClosingZis)
+                "calendar_dates.txt" -> calendarDates = parseCalendarDates(nonClosingZis)
+                "shapes.txt" -> shapes = parseShapes(nonClosingZis)
+                "stop_times.txt" -> stopTimes = parseStopTimes(nonClosingZis)
+                "stops.txt" -> stops = parseStops(nonClosingZis)
+                "transfers.txt" -> transfers = parseTransfers(nonClosingZis)
+                "fare_attributes.txt" -> fareAttributes = parseFareAttributes(nonClosingZis)
+            }
+        }
     }
-    close()
-    return files
-}
 
-private fun Map<String, String>.parseFileList(): GtfsData {
-    return GtfsData(
-        agency = parseAgency(),
-        agencyJapan = parseAgencyJapan(),
-        routes = parseRoutes(),
-        routesJapan = parseRoutesJapan(),
-        feedInfo = parseFeedInfo(),
-        trips = parseTrips(),
-        officeJapan = parseOfficeJapan(),
-        frequencies = parseFrequencies(),
-        calenders = parseCalendars(),
-        calendarDates = parseCalendarDates(),
-        shapes = parseShapes(),
-        stopTimes = parseStopTimes(),
-        stops = parseStops(),
-        transfers = parseTransfers(),
-        fareAttributes = parseFareAttributes()
+    GtfsData(
+        agency = agency,
+        agencyJapan = agencyJapan,
+        routes = routes,
+        routesJapan = routesJapan,
+        feedInfo = feedInfo,
+        trips = trips,
+        officeJapan = officeJapan,
+        frequencies = frequencies,
+        calenders = calenders,
+        calendarDates = calendarDates,
+        shapes = shapes,
+        stopTimes = stopTimes,
+        stops = stops,
+        transfers = transfers,
+        fareAttributes = fareAttributes
     )
 }
 
-private fun Map<String, String>.parseAgency(): List<Agency> {
-    val data = get("agency.txt") ?: return emptyList()
-    return csvReader().readAllWithHeader(data).map { row ->
+private fun parseAgency(stream: InputStream): List<Agency> {
+    return csvReader().open(stream) { readAllWithHeaderAsSequence().map { row ->
         Agency(
             agencyId = row["agency_id"]?.let { AgencyId(it) },
             agencyName = row["agency_name"],
@@ -62,12 +108,12 @@ private fun Map<String, String>.parseAgency(): List<Agency> {
             agencyFareUrl = row["agency_fare_url"],
             agencyEmail = row["agency_email"]
         )
+    }.toList()
     }
 }
 
-private fun Map<String, String>.parseAgencyJapan(): List<AgencyJapan> {
-    val data = get("agency_jp.txt") ?: return emptyList()
-    return csvReader().readAllWithHeader(data).map { row ->
+private fun parseAgencyJapan(stream: InputStream): List<AgencyJapan> {
+    return csvReader().open(stream) { readAllWithHeaderAsSequence().map { row ->
         AgencyJapan(
             agencyId = row["agency_id"]?.let { AgencyId(it) },
             agencyOfficialName = row["agency_official_name"],
@@ -76,12 +122,12 @@ private fun Map<String, String>.parseAgencyJapan(): List<AgencyJapan> {
             agencyPresidentPos = row["agency_president_pos"],
             agencyPresidentName = row["agency_president_name"],
         )
+    }.toList()
     }
 }
 
-private fun Map<String, String>.parseRoutes(): List<Route> {
-    val data = get("routes.txt") ?: return emptyList()
-    return csvReader().readAllWithHeader(data).map { row ->
+private fun parseRoutes(stream: InputStream): List<Route> {
+    return csvReader().open(stream) { readAllWithHeaderAsSequence().map { row ->
         Route(
             routeId = row["route_id"]?.let { RouteId(it) },
             agencyId = row["agency_id"]?.let { AgencyId(it) },
@@ -92,14 +138,14 @@ private fun Map<String, String>.parseRoutes(): List<Route> {
             routeUrl = row["route_url"],
             routeColor = row["route_color"],
             routeTextColor = row["route_text_color"],
-            jpParentRouteId = row["jp_parent_route_id"],
+            jpParentRouteId = row["jp_parent_route_id"]?.let { RouteId(it) },
         )
+    }.toList()
     }
 }
 
-private fun Map<String, String>.parseRoutesJapan(): List<RoutesJapan> {
-    val data = get("routes_jp.txt") ?: return emptyList()
-    return csvReader().readAllWithHeader(data).map {
+private fun parseRoutesJapan(stream: InputStream): List<RoutesJapan> {
+    return csvReader().open(stream) { readAllWithHeaderAsSequence().map { it ->
         RoutesJapan(
             routeId = it["route_id"]?.let { RouteId(it) },
             routeUpdateDate = it["route_update_date"],
@@ -107,26 +153,26 @@ private fun Map<String, String>.parseRoutesJapan(): List<RoutesJapan> {
             destinationStop = it["destination_stop"],
             viaStop = it["via_stop"],
         )
+    }.toList()
     }
 }
 
-private fun Map<String, String>.parseFeedInfo(): List<FeedInfo> {
-    val data = get("feed_info.txt") ?: return emptyList()
-    return csvReader().readAllWithHeader(data).map {
+private fun parseFeedInfo(stream: InputStream): List<FeedInfo> {
+    return csvReader().open(stream) { readAllWithHeaderAsSequence().map { it ->
         FeedInfo(
             feedPublisherName = it["feed_publisher_name"],
             feedPublisherUrl = it["feed_publisher_url"],
             feedLang = it["feed_lang"],
-            feedStartDate = it["feed_start_date"],
-            feedEndDate = it["feed_end_date"],
+            feedStartDate = it["feed_start_date"].toLocalDateOrNull(),
+            feedEndDate = it["feed_end_date"].toLocalDateOrNull(),
             feedVersion = it["feed_version"],
         )
+    }.toList()
     }
 }
 
-private fun Map<String, String>.parseTrips(): List<Trip> {
-    val data = get("trips.txt") ?: return emptyList()
-    return csvReader().readAllWithHeader(data).map {
+private fun parseTrips(stream: InputStream): List<Trip> {
+    return csvReader().open(stream) { readAllWithHeaderAsSequence().map { it ->
         Trip(
             tripId = it["trip_id"]?.let { TripId(it) },
             routeId = it["route_id"]?.let { RouteId(it) },
@@ -135,75 +181,75 @@ private fun Map<String, String>.parseTrips(): List<Trip> {
             tripHeadSign = it["trip_headsign"],
             tripShortName = it["trip_short_name"],
             directionId = it["direction_id"],
-            blockId = it["block_id"],
-            shapeId = it["shape_id"],
+            blockId = it["block_id"]?.let { BlockId(it) },
+            shapeId = it["shape_id"]?.let { ShapeId(it) },
             wheelchairAccessible = it["wheelchair_accessible"],
             bikesAllowed = it["bikes_allowed"],
             jpTripDesc = it["jp_trip_desc"],
             jpTripDescSymbol = it["jp_trip_desc_symbol"],
         )
+    }.toList()
     }
 }
 
-private fun Map<String, String>.parseOfficeJapan(): List<OfficeJapan> {
-    val data = get("office_jp.txt") ?: return emptyList()
-    return csvReader().readAllWithHeader(data).map {
+private fun parseOfficeJapan(stream: InputStream): List<OfficeJapan> {
+    return csvReader().open(stream) { readAllWithHeaderAsSequence().map { it ->
         OfficeJapan(
             officeId = it["office_id"]?.let { OfficeId(it) },
             officeName = it["office_name"],
             officeUrl = it["office_url"],
             officePhone = it["office_phone"],
         )
+    }.toList()
     }
 }
 
-private fun Map<String, String>.parseFrequencies(): List<Frequency> {
-    val data = get("frequencies.txt") ?: return emptyList()
-    return csvReader().readAllWithHeader(data).map {
+private fun parseFrequencies(stream: InputStream): List<Frequency> {
+    return csvReader().open(stream) { readAllWithHeaderAsSequence().map { it ->
         Frequency(
             tripId = it["trip_id"]?.let { TripId(it) },
             startTime = it["start_time"],
             endTime = it["end_time"],
             headwaySecs = it["headway_secs"],
-            exactTimes = it["exact_times"],
+            exactTimes = it["exact_times"].toBooleanFromGtfs(),
         )
+    }.toList()
     }
 }
 
-private fun Map<String, String>.parseCalendars(): List<Calendar> {
-    val data = get("calendar.txt") ?: return emptyList()
-    return csvReader().readAllWithHeader(data).map {
+private fun parseCalendars(stream: InputStream): List<Calendar> {
+    return csvReader().open(stream) { readAllWithHeaderAsSequence().map { it ->
         Calendar(
             serviceId = it["service_id"]?.let { ServiceId(it) },
-            monday = it["monday"],
-            tuesday = it["tuesday"],
-            wednesday = it["wednesday"],
-            thursday = it["thursday"],
-            friday = it["friday"],
-            saturday = it["saturday"],
-            sunday = it["sunday"],
-            startDate = it["start_date"],
-            endDate = it["end_date"],
+            monday = it["monday"].toBooleanFromGtfs(),
+            tuesday = it["tuesday"].toBooleanFromGtfs(),
+            wednesday = it["wednesday"].toBooleanFromGtfs(),
+            thursday = it["thursday"].toBooleanFromGtfs(),
+            friday = it["friday"].toBooleanFromGtfs(),
+            saturday = it["saturday"].toBooleanFromGtfs(),
+            sunday = it["sunday"].toBooleanFromGtfs(),
+            startDate = it["start_date"].toLocalDateOrNull(),
+            endDate = it["end_date"].toLocalDateOrNull(),
         )
+    }.toList()
     }
 }
 
-private fun Map<String, String>.parseShapes(): List<Shape> {
-    val data = get("shapes.txt") ?: return emptyList()
-    return csvReader().readAllWithHeader(data).map {
+private fun parseShapes(stream: InputStream): List<Shape> {
+    return csvReader().open(stream) { readAllWithHeaderAsSequence().map { it ->
         Shape(
-            shapeId = it["shape_id"],
+            shapeId = it["shape_id"]?.let { ShapeId(it) },
             shapePtLat = it["shape_pt_lat"],
-            shapePtLon = it["shape_pt_lng"],
+            shapePtLon = it["shape_pt_lon"],
             shapePtSequence = it["shape_pt_sequence"],
             shapeDistTraveled = it["shape_dist_traveled"],
         )
+    }.toList()
     }
 }
 
-private fun Map<String, String>.parseStopTimes(): List<StopTime> {
-    val data = get("stop_times.txt") ?: return emptyList()
-    return csvReader().readAllWithHeader(data).map {
+private fun parseStopTimes(stream: InputStream): List<StopTime> {
+    return csvReader().open(stream) { readAllWithHeaderAsSequence().map { it ->
         StopTime(
             tripId = it["trip_id"]?.let { TripId(it) },
             stopId = it["stop_id"]?.let { StopId(it) },
@@ -216,56 +262,56 @@ private fun Map<String, String>.parseStopTimes(): List<StopTime> {
             shapeDistTraveled = it["shape_dist_traveled"],
             timePoint = it["timepoint"],
         )
+    }.toList()
     }
 }
 
-private fun Map<String, String>.parseStops(): List<Stop> {
-    val data = get("stops.txt") ?: return emptyList()
-    return csvReader().readAllWithHeader(data).map {
+private fun parseStops(stream: InputStream): List<Stop> {
+    return csvReader().open(stream) { readAllWithHeaderAsSequence().map { row: Map<String, String> ->
         Stop(
-            stopId = it["stop_id"]?.let { StopId(it) },
-            stopCode = it["stop_code"],
-            stopName = it["stop_name"] ?: "",
-            stopDesc = it["stop_desc"],
-            stopLat = it["stop_lat"],
-            stopLon = it["stop_lon"],
-            zoneId = it["zone_id"],
-            stopUrl = it["stop_url"],
-            locationType = it["location_type"],
-            parentStation = it["parent_station"],
-            stopTimezone = it["stop_timezone"],
-            wheelchairBoarding = it["wheelchair_boarding"],
-            platformCode = it["platform_code"]
+            stopId = row["stop_id"]?.let { StopId(it) },
+            stopCode = row["stop_code"],
+            stopName = row["stop_name"] ?: "",
+            stopDesc = row["stop_desc"],
+            stopLat = row["stop_lat"],
+            stopLon = row["stop_lon"],
+            zoneId = row["zone_id"]?.let { ZoneId(it) },
+            stopUrl = row["stop_url"],
+            locationType = row["location_type"],
+            parentStation = row["parent_station"]?.let { StopId(it) },
+            stopTimezone = row["stop_timezone"],
+            wheelchairBoarding = row["wheelchair_boarding"],
+            platformCode = row["platform_code"]
        )
+    }.toList()
     }
 }
 
-private fun Map<String, String>.parseCalendarDates(): List<CalendarDate> {
-    val data = get("calendar_dates.txt") ?: return emptyList()
-    return csvReader().readAllWithHeader(data).map {
+private fun parseCalendarDates(stream: InputStream): List<CalendarDate> {
+    return csvReader().open(stream) { readAllWithHeaderAsSequence().map { it ->
         CalendarDate(
             serviceId = it["service_id"]?.let { ServiceId(it) },
-            date = it["date"],
+            date = it["date"].toLocalDateOrNull(),
             exceptionType = it["exception_type"],
         )
+    }.toList()
     }
 }
 
-private fun Map<String, String>.parseTransfers(): List<Transfer> {
-    val data = get("transfers.txt") ?: return emptyList()
-    return csvReader().readAllWithHeader(data).map {
+private fun parseTransfers(stream: InputStream): List<Transfer> {
+    return csvReader().open(stream) { readAllWithHeaderAsSequence().map { it ->
         Transfer(
-            fromStopId = it["from_stop_id"],
-            toStopId = it["to_stop_id"],
+            fromStopId = it["from_stop_id"]?.let { StopId(it) },
+            toStopId = it["to_stop_id"]?.let { StopId(it) },
             transferType = it["transfer_type"],
             minTransferTime = it["min_transfer_time"]
         )
+    }.toList()
     }
 }
 
-private fun Map<String, String>.parseFareAttributes(): List<FareAttribute> {
-    val data = get("fare_attributes.txt") ?: return emptyList()
-    return csvReader().readAllWithHeader(data).map {
+private fun parseFareAttributes(stream: InputStream): List<FareAttribute> {
+    return csvReader().open(stream) { readAllWithHeaderAsSequence().map { it ->
         FareAttribute(
             fareId = it["fare_id"]?.let { FareId(it) },
             price = it["price"],
@@ -274,49 +320,20 @@ private fun Map<String, String>.parseFareAttributes(): List<FareAttribute> {
             transfers = it["transfers"],
             transferDuration = it["transfer_duration"]
         )
+    }.toList()
     }
 }
 
-/**
- * The data can be
- * ```
- * ①8000020130001
- * ②8000020130001_1
- * ```
- */
-@JvmInline
-value class AgencyId(val id: String)
-
-/**
- * The data can be
- * ```
- * 1001
- * ```
- */
-@JvmInline
-value class RouteId(val id: String)
-
-/**
- * The data can be
- * ```
- * S
- * ```
- */
-@JvmInline
-value class OfficeId(val id: String)
-
-@JvmInline
-value class ServiceId(val id: String)
-
-@JvmInline
-value class TripId(val id: String)
-
-@JvmInline
-value class StopId(val id: String)
-
-@JvmInline
-value class FareId(val id: String)
-
+@JvmInline value class AgencyId(val id: String)
+@JvmInline value class RouteId(val id: String)
+@JvmInline value class OfficeId(val id: String)
+@JvmInline value class ServiceId(val id: String)
+@JvmInline value class TripId(val id: String)
+@JvmInline value class StopId(val id: String)
+@JvmInline value class FareId(val id: String)
+@JvmInline value class ShapeId(val id: String)
+@JvmInline value class BlockId(val id: String)
+@JvmInline value class ZoneId(val id: String)
 
 data class GtfsData(
     val agency: List<Agency> = emptyList(),
@@ -347,30 +364,12 @@ data class Agency(
     val agencyEmail: String?
 )
 
-/**
- * 事業者追加情報
- */
 data class AgencyJapan(
     val agencyId: AgencyId?,
-    /**
-     * 事業者正式名称
-     */
     val agencyOfficialName: String?,
-    /**
-     * 事業者郵便番号
-     */
     val agencyZipCode: String?,
-    /**
-     * 事業者住所
-     */
     val agencyAddress: String?,
-    /**
-     * 代表者肩書
-     */
     val agencyPresidentPos: String?,
-    /**
-     * 代表者氏名
-     */
     val agencyPresidentName: String?
 )
 
@@ -384,26 +383,14 @@ data class Route(
     val routeUrl: String?,
     val routeColor: String?,
     val routeTextColor: String?,
-    val jpParentRouteId: String?,
+    val jpParentRouteId: RouteId?,
 )
 
 data class RoutesJapan(
     val routeId: RouteId?,
-    /**
-     * ダイヤ改正日
-     */
     val routeUpdateDate: String?,
-    /**
-     * 起点
-     */
     val originStop: String?,
-    /**
-     * 終点
-     */
     val destinationStop: String?,
-    /**
-     * 経過地
-     */
     val viaStop: String?,
 )
 
@@ -411,8 +398,8 @@ data class FeedInfo(
     val feedPublisherName: String?,
     val feedPublisherUrl: String?,
     val feedLang: String?,
-    val feedStartDate: String?, // Consider using a Date type
-    val feedEndDate: String?, // Consider using a Date type
+    val feedStartDate: LocalDate?,
+    val feedEndDate: LocalDate?,
     val feedVersion: String?
 )
 
@@ -424,8 +411,8 @@ data class Trip(
     val tripHeadSign: String?,
     val tripShortName: String?,
     val directionId: String?,
-    val blockId: String?,
-    val shapeId: String?,
+    val blockId: BlockId?,
+    val shapeId: ShapeId?,
     val wheelchairAccessible: String?,
     val bikesAllowed: String?,
     val jpTripDesc: String?,
@@ -444,24 +431,24 @@ data class Frequency(
     val startTime: String?,
     val endTime: String?,
     val headwaySecs: String?,
-    val exactTimes: String?,
+    val exactTimes: Boolean?,
 )
 
 data class Calendar(
     val serviceId: ServiceId?,
-    val monday: String?,
-    val tuesday: String?,
-    val wednesday: String?,
-    val thursday: String?,
-    val friday: String?,
-    val saturday: String?,
-    val sunday: String?,
-    val startDate: String?, // Consider using a Date type
-    val endDate: String? // Consider using a Date type
+    val monday: Boolean?,
+    val tuesday: Boolean?,
+    val wednesday: Boolean?,
+    val thursday: Boolean?,
+    val friday: Boolean?,
+    val saturday: Boolean?,
+    val sunday: Boolean?,
+    val startDate: LocalDate?,
+    val endDate: LocalDate?
 )
 
 data class Shape(
-    val shapeId: String?,
+    val shapeId: ShapeId?,
     val shapePtLat: String?,
     val shapePtLon: String?,
     val shapePtSequence: String?,
@@ -483,7 +470,7 @@ data class StopTime(
 
 data class CalendarDate(
     val serviceId: ServiceId?,
-    val date: String?, // Consider using a Date type
+    val date: LocalDate?,
     val exceptionType: String?
 )
 
@@ -494,18 +481,18 @@ data class Stop(
     val stopDesc: String?,
     val stopLat: String?,
     val stopLon: String?,
-    val zoneId: String?,
+    val zoneId: ZoneId?,
     val stopUrl: String?,
     val locationType: String?,
-    val parentStation: String?,
+    val parentStation: StopId?,
     val stopTimezone: String?,
     val wheelchairBoarding: String?,
     val platformCode: String?
 )
 
 data class Transfer(
-    val fromStopId: String?,
-    val toStopId: String?,
+    val fromStopId: StopId?,
+    val toStopId: StopId?,
     val transferType: String?,
     val minTransferTime: String?
 )
