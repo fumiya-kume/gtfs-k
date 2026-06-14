@@ -10,7 +10,7 @@ kotlin = "2.4.0"
 kotlinxDatetime = "0.8.0-0.6.x-compat"
 kotlinxSerializationJSON = "1.11.0"
 kotlinxCoroutines = "1.11.0"
-kotlinCsv = "2.0.0"
+kotlinCsv = "1.9.3"
 material3 = "1.4.0"
 sonatyopeCentralUpload = "1.0.3"
 junit = "4.13.2"
@@ -26,7 +26,7 @@ kotlinGradlePlugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", ver
 kotlinxDatetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinxDatetime" }
 kotlinxSerialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJSON" }
 kotlinxCoroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutines" }
-kotlinCsvJvm = { module = "com.jsoizo:kotlin-csv-jvm", version.ref = "kotlinCsv" }
+kotlinCsvJvm = { module = "com.github.doyaaaaaken:kotlin-csv-jvm", version.ref = "kotlinCsv" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 material = { module = "androidx.compose.material:material" }
 material3 = { module = "androidx.compose.material3:material3", version.ref = "material3" }
