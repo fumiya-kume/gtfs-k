@@ -13,8 +13,8 @@
   ],
   "gradle": {
     "enabled": true,
-    "fileMatch": [
-      "gradle/libs.versions.toml"
+    "managerFilePatterns": [
+      "/gradle/libs.versions.toml/"
     ]
   }
 }
